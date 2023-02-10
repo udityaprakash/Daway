@@ -3,14 +3,14 @@ const bodyparser = require("body-parser");
 const bcrypt=require("bcrypt");
 const app = express();
 require('dotenv').config()
-const db = require("./componnents/databasevariables/db")
+const connectDB = require("./componnents/databasevariables/db")
 
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended:false}));
 app.use(express.static("public"));
 
-db.connection();
+connectDB.connection();
 
 
 //routes

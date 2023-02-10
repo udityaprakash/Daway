@@ -33,13 +33,13 @@ const result={
 
 
           if (await signup.studentexist(email)){
-            console.log("ueser exixt 1");
+            // console.log("ueser exixt 1");
             const resu = await student.find({email:email});
-            console.log("ueser exixt 2");
+            // console.log("ueser exixt 2");
             if(resu.length!=0){
-              console.log("ueser exixt 3");
+              // console.log("ueser exixt 3");
               const updat = await student.findOneAndUpdate({email:email}, {otp:otp , verified:false});
-              console.log("ueser exixt 4");
+              // console.log("ueser exixt 4");
 
               console.log("updated for reset password : "+updat);
               indatabaseotpstored = true;

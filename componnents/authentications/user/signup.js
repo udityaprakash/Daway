@@ -5,6 +5,10 @@ require('dotenv').config()
 const nodemailer=require("nodemailer");
 const otpGenerator = require('otp-generator');
 const student = require("../../databasevariables/studentdb");
+const user = require("../../databasevariables/alluserdb");
+const instructor = require("../../databasevariables/InstructorDB");
+const admin = require("../../databasevariables/admindb");
+const company = require("../../databasevariables/companyDB");
  
 
 var transporter = nodemailer.createTransport({
@@ -21,9 +25,9 @@ var transporter = nodemailer.createTransport({
 const result={
 post: async (req,res)=>{ 
     console.log(req.body);
-    let {fname , lname ,password , email}= req.body;
+    let {fname , lname ,password , email, usertype}= req.body;
     var hashedpassword;
-    if(fname && lname && password && email){
+    if(fname && lname && password && email && usertype){
         const salt= parseInt(process.env.SALT);
         hashedpassword = await bcrypt.hash(password, salt);
         email=email.toLowerCase();  
@@ -35,29 +39,113 @@ post: async (req,res)=>{
                 msg:"user already exists"}); 
               }else{
 
-                const user= new student({
-                  fname:fname,
-                  lname:lname,
-                  password:hashedpassword,
-                  email:email
+                const newuser = new user({
+                  email:email,
+                  usertype:usertype
+                  
                 });
-
+                await newuser.save();
+                if(usertype == 11){
+                  const user= new student({
+                    fname:fname,
+                    lname:lname,
+                    password:hashedpassword,
+                    email:email
+                  });
                   await user.save().then((user)=>{
                     res.status(200).json({
                       success:true,
                       msg:"User Recorded Successfully"
                     });
                     // res.redirect("signup/verifyotp/"+email);
-
+  
                   }).catch((err)=>{
-
+  
                     res.status(400).json({
                       success:false,
                       error:err,
                       msg:"User not been recorded"
                     });
-
+  
                   });
+
+                }else if(usertype== 12){
+                  const user= new instructor({
+                    fname:fname,
+                    lname:lname,
+                    password:hashedpassword,
+                    email:email
+                  });
+                  await user.save().then((user)=>{
+                    res.status(200).json({
+                      success:true,
+                      msg:"User Recorded Successfully"
+                    });
+                    // res.redirect("signup/verifyotp/"+email);
+  
+                  }).catch((err)=>{
+  
+                    res.status(400).json({
+                      success:false,
+                      error:err,
+                      msg:"User not been recorded"
+                    });
+  
+                  });
+
+                }else if(usertype == 13){
+                  const user= new company({
+                    fname:fname,
+                    lname:lname,
+                    password:hashedpassword,
+                    email:email
+                  });
+                  await user.save().then((user)=>{
+                    res.status(200).json({
+                      success:true,
+                      msg:"User Recorded Successfully"
+                    });
+                    // res.redirect("signup/verifyotp/"+email);
+  
+                  }).catch((err)=>{
+  
+                    res.status(400).json({
+                      success:false,
+                      error:err,
+                      msg:"User not been recorded"
+                    });
+  
+                  });
+                }else if(usertype == 14){
+                  const user= new admin({
+                    fname:fname,
+                    lname:lname,
+                    password:hashedpassword,
+                    email:email
+                  });
+                  await user.save().then((user)=>{
+                    res.status(200).json({
+                      success:true,
+                      msg:"User Recorded Successfully"
+                    });
+                    // res.redirect("signup/verifyotp/"+email);
+  
+                  }).catch((err)=>{
+  
+                    res.status(400).json({
+                      success:false,
+                      error:err,
+                      msg:"User not been recorded"
+                    });
+  
+                  });
+                }else{
+                  res.status(400).json({
+                    success:false,
+                    msg:"Invalid user Type"
+                  });
+                }
+
             }
   
         }else{
@@ -89,9 +177,9 @@ post: async (req,res)=>{
     // res.sendFile(path+"/public/signup.html");
   },
 
-  verifyotp : async (req,res)=>{
+  verifyotp : async (req , res)=>{
     let email=req.params['email'];
-    let otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false ,lowerCaseAlphabets:false});
+    let otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false ,lowerCaseAlphabets:false });
 
     if(Emailvalidator.validate(email)){
       if(await result.studentexist(email)){
@@ -159,11 +247,11 @@ post: async (req,res)=>{
     
 
   },
-  studentexist: async (email)=>{
-    var u = await student.find({email : email});
+  userexist: async (email)=>{
+    var u = await user.find({email : email});
     if(u.length!=0){
       console.log("user found\n");
-      return true;
+      return u[0];
     }
     else{
       console.log("user not found\n");
@@ -175,7 +263,7 @@ post: async (req,res)=>{
     const {otp}=req.body;
     const email= req.params['email'];
 
-    if(Emailvalidator.validate(email)){
+    if(Emailvalidator.validate(email) && otp){
       var resu = await student.find({email:email});
         if(resu.length!=0){
         if (resu[0].verified == false){
