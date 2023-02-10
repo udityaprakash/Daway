@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
-const schema= new mongoose.Schema({
+const schemaa= new mongoose.Schema({
     email: {
       type: String,
       trim: true,
@@ -20,6 +20,6 @@ const schema= new mongoose.Schema({
     }
 });
 
-const result = mongoose.model("Alluser" , schema);
+const result = mongoose.model("user" , schemaa);
 
 module.exports = result;

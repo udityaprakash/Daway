@@ -34,7 +34,7 @@ post: async (req,res)=>{
         try {
 
           if(Emailvalidator.validate(email)){
-              if(await result.studentexist(email)){
+              if(await result.userexist(email)){
                 res.json({success:false,
                 msg:"user already exists"}); 
               }else{

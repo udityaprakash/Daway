@@ -1,6 +1,6 @@
 const express = require("express");
 const student = require("./studentdb");
-const alluser = require("./alluserDB");
+const alluser = require("./alluserdb");
 const company = require("./companyDB");
 const instructor = require("./InstructorDB");
 const admin = require("./admindb");
