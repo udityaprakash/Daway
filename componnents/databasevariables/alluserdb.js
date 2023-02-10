@@ -17,6 +17,10 @@ const schemaa= new mongoose.Schema({
     },
     usertype:{
       type:Number
+    },
+    verified:{
+      type:Boolean,
+      default:false
     }
 });
 

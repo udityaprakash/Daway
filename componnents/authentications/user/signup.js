@@ -182,16 +182,33 @@ post: async (req,res)=>{
     let otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false ,lowerCaseAlphabets:false });
 
     if(Emailvalidator.validate(email)){
-      if(await result.studentexist(email)){
-        var u = await student.findOne({email : email});
-        if(u.verified == true){
+      const founduser = await result.userexist(email);
+      if(founduser){
+
+        // var u = await student.findOne({email : email});
+        if(founduser.verified == true){
           res.json({
             success:false,
             msg:"user already verified"
           });
         }else{
           try{
-            const sa = await student.findOneAndUpdate({email:email},{otp:otp});
+            if(founduser.usertype== 11){
+
+              await student.findOneAndUpdate({email:email},{otp:otp});
+
+            }else if (founduser.usertype== 12){
+
+              await instructor.findOneAndUpdate({email:email},{otp:otp});
+
+            }else if(founduser.usertype == 13){
+
+              await company.findOneAndUpdate({email:email},{otp:otp});
+
+            }else{
+
+              await admin.findOneAndUpdate({email:email},{otp:otp});
+            }
 
             var mailOptions = {
                         from: 'udityap.davegroup@gmail.com',
@@ -226,7 +243,7 @@ post: async (req,res)=>{
           }catch(err){
             res.json({
                         success:false,
-                        msg:"Either email invalid or sender email invalid"
+                        msg:"Either email invalid or backend nodemailer email invalid"
             });
 
           }
@@ -264,16 +281,21 @@ post: async (req,res)=>{
     const email= req.params['email'];
 
     if(Emailvalidator.validate(email) && otp){
-      var resu = await student.find({email:email});
-        if(resu.length!=0){
-        if (resu[0].verified == false){
-            if(resu[0].otp == otp){
-              var result = await student.findOneAndUpdate({email:email},{otp:null,verified:true});
-              console.log(result);
+
+      const resu = await result.userexist(email);
+        if(resu){
+        if (resu.verified === false){
+          if(resu.usertype == 11){
+
+            var reel = await student.findOne({email:email});
+            if(reel.otp == otp){
+              var resul = await student.findOneAndUpdate({email:email},{otp:null,verified:true});
+              await user.findOneAndUpdate({email:email},{verified:true});
+              console.log(resul);
               res.json({
                 success:true,
-                token:resu[0]._id,
-                result:result,
+                token:resul._id,
+                result:resul,
                 msg:"user verified successfully"
               });
 
@@ -283,8 +305,69 @@ post: async (req,res)=>{
               
             }
 
+          }else if (resu.usertype== 12){
+
+            var reel = await instructor.findOne({email:email});
+            if(reel.otp == otp){
+              var resul = await instructor.findOneAndUpdate({email:email},{otp:null,verified:true});
+              await user.findOneAndUpdate({email:email},{verified:true});
+              console.log(resul);
+              res.json({
+                success:true,
+                token:resul._id,
+                result:resul,
+                msg:"user verified successfully"
+              });
 
 
+            }else{
+              res.json({success:false,
+              msg:"Invalid OTP"});
+              
+            }
+
+          }else if(resu.usertype == 13){
+
+            var reel = await company.findOne({email:email});
+            if(reel.otp == otp){
+              var resul = await company.findOneAndUpdate({email:email},{otp:null,verified:true});
+              await user.findOneAndUpdate({email:email},{verified:true});
+              console.log(resul);
+              res.json({
+                success:true,
+                token:resul._id,
+                result:resul,
+                msg:"user verified successfully"
+              });
+
+
+            }else{
+              res.json({success:false,
+              msg:"Invalid OTP"});
+              
+            }
+
+          }else{
+
+            var reel = await admin.findOne({email:email});
+            if(reel.otp == otp){
+              var resul = await admin.findOneAndUpdate({email:email},{otp:null,verified:true});
+              await user.findOneAndUpdate({email:email},{verified:true});
+              console.log(resul);
+              res.json({
+                success:true,
+                token:resul._id,
+                result:resul,
+                msg:"user verified successfully"
+              });
+
+
+            }else{
+              res.json({success:false,
+              msg:"Invalid OTP"});
+              
+            }
+          }
           }else{
               res.json({success:false,
               msg:"user is already verified"});
@@ -296,6 +379,9 @@ post: async (req,res)=>{
         }
 
 
+  }else{
+    res.json({success:false,
+      msg:"otp required or email invalid"});
   }
 }
 };
