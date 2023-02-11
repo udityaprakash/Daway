@@ -41,7 +41,7 @@ const result={
               const updat = await student.findOneAndUpdate({email:email}, {otp:otp , verified:false});
               // console.log("ueser exixt 4");
 
-              console.log("updated for reset password : "+updat);
+              console.log("updated for reset password : "+ updat );
               indatabaseotpstored = true;
 
             }else{
@@ -57,7 +57,7 @@ const result={
                 subject: 'Reset Password for DAWAY',
                 html: `<div style="max-width: 90%; margin: auto; padding-top: 20px">
               <p style="margin-bottom: 30px;">Please enter the OTP to get started</p>
-              <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${otp}</h1></div>`
+              <h1 style="font-size: 40px; letter-spacing: 2px; text-align:center;">${ otp }</h1></div>`
           };
 
           transporter.sendMail(mailOptions, function(error, info){

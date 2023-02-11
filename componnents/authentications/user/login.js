@@ -1,14 +1,13 @@
 const bcrypt = require("bcrypt");
 const path=require("../../../path");
-const student= require("../../databasevariables/studentdb"); 
+const student= require("../../databasevariables/studentdb");
 
+const result = {
 
-
-const result={
-post: async (req,res)=>{
+  post: async (req,res) => {
     console.log(req.body);
-    let {email , password} = req.body;
-    if(email && password){
+    let { email , password } = req.body;
+    if( email && password ){
       email = email.toLowerCase();
       const result = await student.find({ email: email });
       console.log(result);
@@ -17,6 +16,7 @@ post: async (req,res)=>{
             if(match){
               console.log(result[0].verified);
               if(result[0].verified == true){
+
                 res.status(200).json({
                   status:true,
                   msg:"User Exist",
